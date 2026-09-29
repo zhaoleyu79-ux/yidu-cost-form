@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用工成本测算 · 基础数据采集表</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{
+  --bg:#fdfcf9; --bg-card:#ffffff; --bg-accent:#f8f6f0;
+  --text:#2c2c2c; --text-secondary:#5a5a5a; --text-muted:#8a8a8a;
+  --border:#e0dcd5;
+  --accent:#d4410b; --accent-soft:#fef3ee;
+  --blue:#1a6fb5; --blue-soft:#eef6fc;
+  --green:#2d7d46; --green-soft:#edf7f0;
+  --red:#b3261e; --red-soft:#fdeeee;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --radius:8px;
+  --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+.container{max-width:1440px;margin:0 auto;padding:28px 22px 70px}
+strong{font-weight:700}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(253,252,249,.94);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:52px;backdrop-filter:blur(12px)}
+.topbar .logo{font-weight:700;font-size:14px;color:var(--accent);letter-spacing:.5px}
+.topbar .meta{font-size:12.5px;color:var(--text-muted)}
+.cover{text-align:center;padding:36px 20px 26px}
+.cover .badge{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:600;padding:4px 14px;border-radius:20px;margin-bottom:14px;letter-spacing:.5px}
+.cover h1{font-size:25px;font-weight:700;letter-spacing:.5px}
+.cover .sub{color:var(--text-secondary);font-size:14px;margin-top:8px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:15.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h2 .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-size:12.5px;font-weight:700}
+.intro ol{padding-left:20px;color:var(--text-secondary);font-size:13.5px}
+.intro ol li{margin-bottom:5px}
+.intro ol li:last-child{margin-bottom:0}
+.intro b{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 18px}
+.field label{display:block;font-size:12.5px;color:var(--text-secondary);margin-bottom:4px}
+.field label b{color:var(--red)}
+input[type=text],input[type=number],input[type=date],select,textarea{font:inherit;font-size:13.5px;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text)}
+.field input,.field select,.field textarea{width:100%}
+textarea{resize:vertical;min-height:56px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[readonly]{background:var(--bg-accent);color:var(--text-secondary)}
+.table-wrap{overflow:auto;max-height:74vh;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1350px}
+th,td{border:1px solid var(--border);padding:5px 6px;vertical-align:middle}
+thead th{background:var(--bg-accent);font-weight:600;text-align:center;color:var(--text-secondary);font-size:12.5px;white-space:nowrap}
+tr.group-row td{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.3px;padding:6px 10px}
+.c-idx{text-align:center;color:var(--text-muted);font-size:12px;width:34px}
+.w-pos{width:100px}
+.w-dept{width:180px}
+.w-total{width:68px}
+.w-pv{width:60px}
+.w-wage{width:98px}
+.w-sel{width:136px}
+.w-sicost{width:92px}
+.w-note{min-width:130px}
+.w-note .cell-text{width:100%}
+.num{text-align:right}
+.cell-text{font-size:12.5px}
+tr.item-row.mismatch .pv{background:#fff5f4;border-color:#e8a9a3}
+tr.item-row.mismatch .warncell{color:var(--red)}
+h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:auto}
+.table-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.btn{font:inherit;font-size:13.5px;font-weight:600;padding:8px 18px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#b93809;color:#fff;border-color:#b93809}
+.btn-ghost{border-style:dashed;color:var(--text-secondary)}
+.summary{background:var(--bg-accent);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:14px;font-size:13.5px}
+.sum-row{display:flex;gap:10px;margin-bottom:5px}
+.sum-row:last-child{margin-bottom:0}
+.sum-k{flex:0 0 76px;color:var(--text-muted);font-size:12.5px;padding-top:2px}
+.sum-v{flex:1;color:var(--text);word-break:break-all}
+.warn{color:var(--red)}
+.ok{color:var(--green)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.actions .spacer{flex:1}
+.footer{text-align:center;color:var(--text-muted);font-size:12px;margin-top:26px;line-height:2}
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#2c2c2c;color:#fff;font-size:13.5px;padding:10px 22px;border-radius:24px;opacity:0;pointer-events:none;transition:.25s;z-index:999;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.noscript{background:var(--red-soft);border:1px solid #f0c9c5;color:var(--red);padding:12px 18px;border-radius:var(--radius);margin-bottom:18px;font-size:13.5px}
+@media (max-width:760px){
+  .container{padding:18px 12px 60px}
+  .cover h1{font-size:20px}
+  .topbar .meta{display:none}
+}
+@media print{
+  .topbar,.actions,.table-toolbar,.toast,#addRowWrap{display:none!important}
+  body{background:#fff;font-size:12px}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;padding:12px 14px}
+  .table-wrap{max-height:none;overflow:visible;border:none}
+  table{min-width:0;font-size:10.5px}
+  input,select,textarea{border:none;border-bottom:1px solid #c9c9c9;border-radius:0;padding:1px 2px;appearance:none;-webkit-appearance:none}
+  th,td{padding:2px 3px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">壹度 · 用工成本测算</span>
+  <span class="meta">基础数据采集表 v0.1 ｜ 数据仅在本机浏览器处理，不上传</span>
+</div>
+
+<div class="container">
+
+  <header class="cover">
+    <div class="badge">基础数据采集</div>
+    <h1>用工成本测算 · 基础数据采集表</h1>
+    <p class="sub">请贵司填写下列岗位的基础信息；回收后由项目组完成三态成本测算并反馈。</p>
+  </header>
+
+  <noscript>
+    <div class="noscript">本表需要浏览器启用 JavaScript 才能汇总与导出数据。如不便使用，请联系项目对接人索取 Excel 版。</div>
+  </noscript>
+
+  <section class="card intro">
+    <h2><span class="num">i</span>填写说明</h2>
+    <ol>
+      <li><b>用途</b>：为完成贵司用工成本测算（现状 / 合规 / 任务化 三态对比），需采集以下岗位基础数据；数据仅用于本次测算。</li>
+      <li><b>填写</b>：预填人数来自双方已确认的岗位数据，如有出入请直接修改；<b>「总人数」「月均应发工资」「当前参保情况」为必填</b>；建议使用电脑浏览器打开填写（微信内打开时，点右上角「···」→「在浏览器中打开」）。</li>
+      <li><b>口径</b>：月工资＝应发（税前，含绩效、津补贴、加班费）；社保成本＝单位承担部分；金额单位均为「元 / 月 / 人」（商保除外）。</li>
+      <li><b>提交</b>：填完后点底部「导出数据（JSON）」保存文件回传，或点「复制数据（发微信）」后直接粘贴到微信发送给项目对接人。本页面仅在您的浏览器本地运行，不上传任何数据。</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">1</span>基本信息</h2>
+    <div class="grid">
+      <div class="field"><label>填表单位</label><input type="text" id="m-org" placeholder="如：壹度便利店（某某）有限公司"></div>
+      <div class="field"><label>填表人 / 部门</label><input type="text" id="m-person" placeholder="姓名 / 部门"></div>
+      <div class="field"><label>联系电话</label><input type="text" id="m-phone" placeholder="选填"></div>
+      <div class="field"><label>填表日期</label><input type="date" id="m-date"></div>
+      <div class="field"><label>涉及省份（如有差异请修改）</label><input type="text" id="m-scope" value="安徽、江苏、山东、河南"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>岗位基础数据<span class="h2hint">带 <b style="color:var(--red)">*</b> 为必填；表格可横向滚动</span></h2>
+    <div class="table-toolbar">
+      <button class="btn btn-ghost" id="addRowBtn">＋ 添加岗位</button>
+      <span style="font-size:12.5px;color:var(--text-muted)">第二部分为管理与职能岗位，数据用于成本结构对照。</span>
+    </div>
+    <div class="table-wrap">
+      <table id="posTable">
+        <thead>
+          <tr>
+            <th rowspan="2">序号</th>
+            <th rowspan="2">岗位</th>
+            <th rowspan="2">归属板块</th>
+            <th rowspan="2">总人数<br><span style="font-weight:400">*</span></th>
+            <th colspan="4">人员分省分布（合计＝总人数）</th>
+            <th rowspan="2">月均应发工资<br>（元/月）<span style="font-weight:400">*</span></th>
+            <th rowspan="2">当前用工形式</th>
+            <th rowspan="2">当前参保情况<br><span style="font-weight:400">*</span></th>
+            <th rowspan="2">单位社保月成本<br>（元/人·月 · 选填）</th>
+            <th rowspan="2">备注</th>
+          </tr>
+          <tr>
+            <th>安徽</th><th>江苏</th><th>山东</th><th>河南</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="summary">
+      <div class="sum-row"><span class="sum-k">完成度</span><span class="sum-v" id="s-progress">—</span></div>
+      <div class="sum-row"><span class="sum-k">人数合计</span><span class="sum-v" id="s-total">—</span></div>
+      <div class="sum-row"><span class="sum-k">分省合计</span><span class="sum-v" id="s-prov">—</span></div>
+      <div class="sum-row"><span class="sum-k">校验提示</span><span class="sum-v" id="s-warn">—</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>补充信息</h2>
+    <div class="grid">
+      <div class="field"><label>商业保险（意外/雇主责任险）现状</label>
+        <select id="m-bizins">
+          <option value="">请选择</option>
+          <option>已配置</option><option>未配置</option><option>不清楚</option>
+        </select>
+      </div>
+      <div class="field"><label>商业保险年费（元/人·年，选填；按岗位不同请备注）</label><input type="number" id="m-bizfee" min="0" placeholder="如：300–400（高危岗）"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>其他说明（口径差异、特殊情况等）</label><textarea id="m-memo" placeholder="选填"></textarea></div>
+  </section>
+
+  <section class="card actions">
+    <button class="btn btn-primary" id="btnJson">导出数据（JSON）</button>
+    <button class="btn" id="btnCsv">导出表格（CSV / Excel）</button>
+    <button class="btn" id="btnCopy">复制数据（发微信）</button>
+    <button class="btn" id="btnPrint">打印 / 存为 PDF</button>
+    <span class="spacer"></span>
+    <button class="btn" id="btnClear" style="color:var(--text-muted)">清空重填</button>
+  </section>
+  <p style="font-size:12.5px;color:var(--text-muted);margin-top:10px">回传方式（任选其一）：① 点「导出数据（JSON）」保存文件 → 微信发文件给项目对接人（推荐电脑操作）；② 点「复制数据（发微信）」→ 直接粘贴到微信聊天发送；③ 打印 / 存为 PDF 后发送。填写内容会自动暂存在本机浏览器，关闭页面后重新打开可继续。</p>
+
+  <div class="footer">
+    用工成本测算 · 基础数据采集表 v0.1 ｜ 2026 年 9 月<br>
+    本页面为离线文件，所有数据仅在您的浏览器本地处理。
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var PROVINCES = ['安徽','江苏','山东','河南'];
+
+  var POSITIONS = [
+    { group:'一、生产 · 门店操作岗', items:[
+      { pos:'操作工',   dept:'冰峰饮料 · 生产',        n:15 },
+      { pos:'店员',     dept:'营运管理中心 · 直营店',  n:70 },
+      { pos:'营业员',   dept:'营运管理中心 · 直营店',  n:30 },
+      { pos:'夜班店员', dept:'营运管理中心 · 直营店',  n:70 }
+    ]},
+    { group:'二、营运与管理岗（对照参考）', items:[
+      { pos:'城市负责人', dept:'营运管理中心 · 区域负责人', n:23 },
+      { pos:'开发专员',   dept:'招商加盟中心',  n:100 },
+      { pos:'实习督导',   dept:'营运管理中心 · 营运中心',  n:20 },
+      { pos:'营运督导',   dept:'营运管理中心 · 营运中心',  n:120 }
+    ]},
+    { group:'三、其他岗位（如需补充）', items:[
+      { pos:'', dept:'', n:null },
+      { pos:'', dept:'', n:null }
+    ]}
+  ];
+
+  var OPTS_FORM = ['','全日制','非全日制','劳务派遣','劳务外包','小时工 / 临时','混合','其他'];
+  var OPTS_INS  = ['','全员缴纳（五险）','全员缴纳（三险）','全员缴纳（其他组合）','部分缴纳','未缴纳','不清楚'];
+
+  var LS_KEY = 'yidu-cost-form-v0.1';
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined && html !== null) e.innerHTML = html;
+    return e;
+  }
+  function opts(list, sel){
+    return list.map(function(o){
+      return '<option value="' + o + '"' + (o===sel?' selected':'') + '>' + (o||'请选择') + '</option>';
+    }).join('');
+  }
+  function numInput(f, cls){
+    return '<input type="number" min="0" step="1" inputmode="numeric" data-f="' + f + '" class="num ' + (cls||'') + '">';
+  }
+
+  var idx = 0;
+  function renderRows(){
+    var tb = document.getElementById('tbody');
+    POSITIONS.forEach(function(g){
+      var gr = el('tr','group-row');
+      gr.appendChild(el('td','', g.group)).setAttribute('colspan','13');
+      tb.appendChild(gr);
+      g.items.forEach(function(it){
+        idx++;
+        var tr = el('tr','item-row');
+        tr.dataset.rowId = 'r' + idx;
+        var html = '';
+        html += '<td class="c-idx">' + idx + '</td>';
+        html += '<td><input type="text" class="cell-text w-pos" data-f="pos" value="' + (it.pos||'') + '" title="' + (it.pos||'') + '"></td>';
+        html += '<td><input type="text" class="cell-text w-dept" data-f="dept" value="' + (it.dept||'') + '" title="' + (it.dept||'') + '"></td>';
+        html += '<td>' + numInput('total','w-total') + '</td>';
+        PROVINCES.forEach(function(p){ html += '<td>' + numInput(p,'pv w-pv') + '</td>'; });
+        html += '<td>' + numInput('wage','w-wage') + '</td>';
+        html += '<td><select data-f="form" class="w-sel">' + opts(OPTS_FORM) + '</select></td>';
+        html += '<td><select data-f="ins" class="w-sel">' + opts(OPTS_INS) + '</select></td>';
+        html += '<td>' + numInput('sicost','w-sicost') + '</td>';
+        html += '<td class="w-note"><input type="text" class="cell-text" data-f="note"></td>';
+        tr.innerHTML = html;
+        if(it.n !== null && it.n !== undefined){
+          tr.querySelector('[data-f="total"]').value = it.n;
+        }
+        tb.appendChild(tr);
+      });
+    });
+  }
+
+  function rowData(tr){
+    function inp(f){ return tr.querySelector('[data-f="' + f + '"]'); }
+    function val(f){ var e = inp(f); return e ? e.value.trim() : ''; }
+    function num(f){ var x = val(f); return x === '' ? null : Number(x); }
+    var r = {
+      '岗位': val('pos'),
+      '归属板块': val('dept'),
+      '总人数': num('total'),
+      '分布': {},
+      '月均应发': num('wage'),
+      '用工形式': val('form'),
+      '参保情况': val('ins'),
+      '单位社保月成本': num('sicost'),
+      '备注': val('note')
+    };
+    PROVINCES.forEach(function(p){ r['分布'][p] = num(p); });
+    return r;
+  }
+
+  function activeRows(){
+    var out = [];
+    document.querySelectorAll('tr.item-row').forEach(function(tr){
+      var d = rowData(tr);
+      if(d['岗位'] !== '' || d['总人数'] !== null) out.push({tr:tr, d:d});
+    });
+    return out;
+  }
+
+  function refresh(){
+    var rows = activeRows();
+    var wageFilled = 0, insFilled = 0, splitFilled = 0;
+    var sumTotal = 0, provSum = {}, unassigned = 0, warns = [];
+    PROVINCES.forEach(function(p){ provSum[p] = 0; });
+
+    rows.forEach(function(item){
+      var d = item.d, tr = item.tr;
+      if(d['月均应发'] !== null && d['月均应发'] > 0) wageFilled++;
+      if(d['参保情况'] !== '') insFilled++;
+      if(d['总人数'] !== null && d['总人数'] > 0) sumTotal += d['总人数'];
+      var pSum = 0, any = false;
+      PROVINCES.forEach(function(p){
+        var v = d['分布'][p];
+        if(v !== null && v > 0){ pSum += v; any = true; provSum[p] += v; }
+      });
+      if(any) splitFilled++;
+      if(any) unassigned += Math.max(0, (d['总人数']||0) - pSum);
+      var mism = any && d['总人数'] !== null && pSum !== d['总人数'];
+      tr.classList.toggle('mismatch', mism);
+      if(mism){
+        warns.push('第 ' + (rows.indexOf(item)+1) + ' 行（' + (d['岗位']||'未命名') + '）：分省合计 ' + pSum + ' ≠ 总人数 ' + d['总人数']);
+      }
+    });
+
+    var denom = rows.length;
+    document.getElementById('s-progress').textContent =
+      '月薪 ' + wageFilled + '/' + denom + ' ｜ 参保 ' + insFilled + '/' + denom + ' ｜ 分省拆分 ' + splitFilled + '/' + denom;
+    document.getElementById('s-total').textContent = sumTotal ? (sumTotal + ' 人') : '—';
+    var pv = PROVINCES.map(function(p){ return p + ' ' + provSum[p]; }).join(' ｜ ');
+    document.getElementById('s-prov').textContent = (provSum['安徽']+provSum['江苏']+provSum['山东']+provSum['河南']) ? pv : '—';
+    var w = document.getElementById('s-warn');
+    if(warns.length){
+      w.className = 'sum-v warn';
+      w.innerHTML = warns.slice(0,6).join('<br>') + (warns.length>6 ? '<br>…共 ' + warns.length + ' 条' : '');
+    } else if (rows.length && sumTotal > 0 && unassigned === 0 && splitFilled === rows.length){
+      w.className = 'sum-v ok';
+      w.textContent = '分省合计与总人数一致 ✓';
+    } else {
+      w.className = 'sum-v';
+      w.textContent = unassigned > 0 ? ('尚有 ' + unassigned + ' 人未分配省份（可留空由项目组按整体口径处理）') : '—';
+    }
+  }
+
+  function metaData(){
+    function v(id){ return (document.getElementById(id).value || '').trim(); }
+    function n(id){ var x = v(id); return x === '' ? null : Number(x); }
+    return {
+      '填表单位': v('m-org'), '填表人': v('m-person'), '电话': v('m-phone'),
+      '日期': v('m-date'), '省份': v('m-scope'),
+      '商保现状': v('m-bizins'), '商保年费': n('m-bizfee'), '说明': v('m-memo')
+    };
+  }
+
+  function buildData(){
+    var rows = activeRows().map(function(x){ return x.d; });
+    return {
+      schema: 'yidu-cost-model-input/1',
+      version: 'v0.1',
+      exported_at: new Date().toISOString(),
+      meta: metaData(),
+      岗位: rows
+    };
+  }
+
+  function checkBeforeExport(){
+    var rows = activeRows();
+    if(!rows.length){ alert('请先填写岗位数据。'); return false; }
+    var missing = [];
+    rows.forEach(function(x, i){
+      var d = x.d, tag = '第 ' + (i+1) + ' 行（' + (d['岗位']||'未命名') + '）';
+      if(d['总人数'] === null) missing.push(tag + ' 缺「总人数」');
+      if(d['月均应发'] === null) missing.push(tag + ' 缺「月均应发工资」');
+      if(d['参保情况'] === '') missing.push(tag + ' 缺「当前参保情况」');
+    });
+    if(missing.length){
+      return confirm('以下必填项尚未完成：\n\n' + missing.slice(0,8).join('\n') + (missing.length>8?'\n…':'') + '\n\n仍要导出吗？');
+    }
+    return true;
+  }
+
+  function download(filename, text, withBom){
+    var blob = new Blob([withBom ? '﻿' : '', text], {type:'text/plain;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+  }
+
+  function csvCell(x){
+    x = (x === null || x === undefined) ? '' : String(x);
+    if(/[",\n\r]/.test(x)) x = '"' + x.replace(/"/g,'""') + '"';
+    return x;
+  }
+
+  function buildCsv(){
+    var m = metaData();
+    var lines = [];
+    lines.push(['填表单位', m['填表单位']].map(csvCell).join(','));
+    lines.push(['填表人', m['填表人'], '电话', m['电话'], '日期', m['日期']].map(csvCell).join(','));
+    lines.push(['涉及省份', m['省份'], '商保现状', m['商保现状'], '商保年费', m['商保年费']].map(csvCell).join(','));
+    lines.push('');
+    lines.push(['岗位','归属板块','总人数','安徽','江苏','山东','河南','月均应发工资(元/月)','当前用工形式','当前参保情况','单位社保月成本(元/人·月)','备注'].join(','));
+    activeRows().forEach(function(x){
+      var d = x.d;
+      lines.push([
+        d['岗位'], d['归属板块'], d['总人数'], d['分布']['安徽'], d['分布']['江苏'], d['分布']['山东'], d['分布']['河南'],
+        d['月均应发'], d['用工形式'], d['参保情况'], d['单位社保月成本'], d['备注']
+      ].map(csvCell).join(','));
+    });
+    if(m['说明']){ lines.push(''); lines.push(['其他说明', m['说明']].map(csvCell).join(',')); }
+    return lines.join('\r\n');
+  }
+
+  function stamp(){
+    var d = new Date();
+    function z(x){ return (x<10?'0':'') + x; }
+    return d.getFullYear() + z(d.getMonth()+1) + z(d.getDate());
+  }
+
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var done = false;
+    try { done = document.execCommand('copy'); } catch(e){ done = false; }
+    ta.remove();
+    toast(done ? '已复制到剪贴板' : '复制失败，请改用「导出数据（JSON）」');
+  }
+
+  /* ---------- local autosave ---------- */
+  function collectState(){
+    var st = { rows: [], meta: {} };
+    document.querySelectorAll('tr.item-row').forEach(function(tr){
+      var o = {};
+      tr.querySelectorAll('[data-f]').forEach(function(e){ o[e.getAttribute('data-f')] = e.value; });
+      st.rows.push(o);
+    });
+    ['m-org','m-person','m-phone','m-date','m-scope','m-bizins','m-bizfee','m-memo'].forEach(function(id){
+      st.meta[id] = document.getElementById(id).value;
+    });
+    return st;
+  }
+  function saveState(){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(collectState())); } catch(e){}
+  }
+  function restoreState(){
+    var raw;
+    try { raw = localStorage.getItem(LS_KEY); } catch(e){ return false; }
+    if(!raw) return false;
+    var st;
+    try { st = JSON.parse(raw); } catch(e){ return false; }
+    if(!st || !st.rows) return false;
+    var trs = document.querySelectorAll('tr.item-row');
+    // 行数不一致（曾添加过行）时，按添加逻辑补行
+    while(trs.length < st.rows.length){ addRow(); trs = document.querySelectorAll('tr.item-row'); }
+    trs.forEach(function(tr, i){
+      var o = st.rows[i];
+      if(!o) return;
+      tr.querySelectorAll('[data-f]').forEach(function(e){
+        var k = e.getAttribute('data-f');
+        if(o[k] !== undefined) e.value = o[k];
+      });
+    });
+    Object.keys(st.meta || {}).forEach(function(id){
+      var e = document.getElementById(id);
+      if(e && st.meta[id] !== undefined && !(id === 'm-scope' && st.meta[id] === '')) e.value = st.meta[id];
+    });
+    return true;
+  }
+
+  function addRow(){
+    var tb = document.getElementById('tbody');
+    idx++;
+    var tr = el('tr','item-row');
+    tr.dataset.rowId = 'r' + idx;
+    var html = '';
+    html += '<td class="c-idx">' + idx + '</td>';
+    html += '<td><input type="text" class="cell-text w-pos" data-f="pos"></td>';
+    html += '<td><input type="text" class="cell-text w-dept" data-f="dept"></td>';
+    html += '<td>' + numInput('total','w-total') + '</td>';
+    PROVINCES.forEach(function(p){ html += '<td>' + numInput(p,'pv w-pv') + '</td>'; });
+    html += '<td>' + numInput('wage','w-wage') + '</td>';
+    html += '<td><select data-f="form" class="w-sel">' + opts(OPTS_FORM) + '</select></td>';
+    html += '<td><select data-f="ins" class="w-sel">' + opts(OPTS_INS) + '</select></td>';
+    html += '<td>' + numInput('sicost','w-sicost') + '</td>';
+    html += '<td class="w-note"><input type="text" class="cell-text" data-f="note"></td>';
+    tr.innerHTML = html;
+    tb.appendChild(tr);
+    bindRow(tr);
+    return tr;
+  }
+
+  function bindRow(tr){
+    tr.querySelectorAll('input,select').forEach(function(e){
+      e.addEventListener('input', function(){ refresh(); saveState(); });
+      e.addEventListener('change', function(){ refresh(); saveState(); });
+    });
+  }
+
+  /* ---------- init ---------- */
+  renderRows();
+  document.querySelectorAll('tr.item-row').forEach(bindRow);
+
+  ['m-org','m-person','m-phone','m-date','m-scope','m-bizins','m-bizfee','m-memo'].forEach(function(id){
+    var e = document.getElementById(id);
+    e.addEventListener('input', saveState);
+    e.addEventListener('change', saveState);
+  });
+
+  var restored = restoreState();
+  refresh();
+  if(restored) toast('已恢复上次填写内容');
+
+  document.getElementById('addRowBtn').addEventListener('click', function(){
+    var tr = addRow();
+    refresh(); saveState();
+    tr.querySelector('[data-f="pos"]').focus();
+    var wrap = document.querySelector('.table-wrap');
+    wrap.scrollTop = wrap.scrollHeight;
+  });
+
+  document.getElementById('btnJson').addEventListener('click', function(){
+    if(!checkBeforeExport()) return;
+    download('壹度用工成本数据_' + stamp() + '.json', JSON.stringify(buildData(), null, 2), false);
+    toast('已导出 JSON 文件');
+  });
+
+  document.getElementById('btnCsv').addEventListener('click', function(){
+    if(!checkBeforeExport()) return;
+    download('壹度用工成本数据_' + stamp() + '.csv', buildCsv(), true);
+    toast('已导出 CSV（可用 Excel 打开）');
+  });
+
+  document.getElementById('btnCopy').addEventListener('click', function(){
+    var d = buildData();
+    var text = '【壹度用工成本数据】' + (d.meta['填表单位'] || '') + ' ' + (d.meta['日期'] || '') + '\n' + JSON.stringify(d);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(
+        function(){ toast('已复制到剪贴板'); },
+        function(){ fallbackCopy(text); }
+      );
+    } else {
+      fallbackCopy(text);
+    }
+  });
+
+  document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+  document.getElementById('btnClear').addEventListener('click', function(){
+    if(!confirm('确定清空所有已填内容并重新开始吗？')) return;
+    try { localStorage.removeItem(LS_KEY); } catch(e){}
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
