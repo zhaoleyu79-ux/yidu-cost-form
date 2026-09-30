@@ -195,10 +195,12 @@ h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:
     <button class="btn" id="btnCsv">导出表格（CSV / Excel）</button>
     <button class="btn" id="btnCopy">复制数据（发微信）</button>
     <button class="btn" id="btnPrint">打印 / 存为 PDF</button>
+    <button class="btn" id="btnImport">导入数据（JSON）</button>
+    <input type="file" id="fileImport" accept=".json,application/json" style="display:none">
     <span class="spacer"></span>
     <button class="btn" id="btnClear" style="color:var(--text-muted)">清空重填</button>
   </section>
-  <p style="font-size:12.5px;color:var(--text-muted);margin-top:10px">回传方式（任选其一）：① 点「导出数据（JSON）」保存文件 → 微信发文件给项目对接人（推荐电脑操作）；② 点「复制数据（发微信）」→ 直接粘贴到微信聊天发送；③ 打印 / 存为 PDF 后发送。填写内容会自动暂存在本机浏览器，关闭页面后重新打开可继续。</p>
+  <p style="font-size:12.5px;color:var(--text-muted);margin-top:10px">回传方式（任选其一）：① 点「导出数据（JSON）」保存文件 → 微信发文件给项目对接人（推荐电脑操作）；② 点「复制数据（发微信）」→ 直接粘贴到微信聊天发送；③ 打印 / 存为 PDF 后发送。填写内容会自动暂存在本机浏览器，关闭页面后重新打开可继续；此前导出的 JSON 可用「导入数据」载入修改后再导出。</p>
 
   <div class="footer">
     用工成本测算 · 基础数据采集表 v0.1 ｜ 2026 年 9 月<br>
@@ -236,7 +238,7 @@ h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:
   var OPTS_FORM = ['','全日制','非全日制','劳务派遣','劳务外包','小时工 / 临时','混合','其他'];
   var OPTS_INS  = ['','全员缴纳（五险）','全员缴纳（三险）','全员缴纳（其他组合）','部分缴纳','未缴纳','不清楚'];
 
-  var LS_KEY = 'yidu-cost-form-v0.1';
+  var LS_KEY = window.__LS_KEY__ || 'yidu-cost-form-v0.1';
 
   function el(tag, cls, html){
     var e = document.createElement(tag);
@@ -310,6 +312,54 @@ h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:
       if(d['岗位'] !== '' || d['总人数'] !== null) out.push({tr:tr, d:d});
     });
     return out;
+  }
+
+  function applyData(data){
+    data = data || {};
+    var metaMap = {'填表单位':'m-org','填表人':'m-person','电话':'m-phone','日期':'m-date','省份':'m-scope','商保现状':'m-bizins','商保年费':'m-bizfee','说明':'m-memo'};
+    Object.keys(metaMap).forEach(function(k){
+      var v = (data.meta || {})[k];
+      if(v === undefined || v === null || v === '') return;
+      var el = document.getElementById(metaMap[k]);
+      if(el) el.value = v;
+    });
+    var rows = data['岗位'] || data['rows'] || [];
+    var trs = Array.prototype.slice.call(document.querySelectorAll('tr.item-row'));
+    var used = [];
+    var fieldMap = {'岗位':'pos','归属板块':'dept','总人数':'total','月均应发':'wage','用工形式':'form','参保情况':'ins','单位社保月成本':'sicost','备注':'note'};
+    rows.forEach(function(r){
+      var target = null, i, name = String(r['岗位'] || '').trim();
+      if(name){
+        for(i = 0; i < trs.length; i++){
+          if(used.indexOf(i) !== -1) continue;
+          var pel = trs[i].querySelector('[data-f="pos"]');
+          if(pel && pel.value.trim() === name){ target = trs[i]; used.push(i); break; }
+        }
+      }
+      if(!target){
+        for(i = 0; i < trs.length; i++){
+          if(used.indexOf(i) !== -1) continue;
+          var pel2 = trs[i].querySelector('[data-f="pos"]');
+          if(pel2 && pel2.value.trim() === ''){ target = trs[i]; used.push(i); break; }
+        }
+      }
+      if(!target){
+        target = addRow();
+        trs.push(target);
+        used.push(trs.length - 1);
+      }
+      Object.keys(fieldMap).forEach(function(k){
+        var el = target.querySelector('[data-f="' + fieldMap[k] + '"]');
+        if(!el || r[k] === undefined || r[k] === null) return;
+        el.value = r[k];
+      });
+      var prov = r['分布'] || {};
+      PROVINCES.forEach(function(p){
+        var el = target.querySelector('[data-f="' + p + '"]');
+        if(el && prov[p] !== undefined && prov[p] !== null) el.value = prov[p];
+      });
+    });
+    refresh(); saveState();
   }
 
   function refresh(){
@@ -537,6 +587,9 @@ h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:
   var restored = restoreState();
   refresh();
   if(restored) toast('已恢复上次填写内容');
+  if(window.__PRELOAD__){
+    try { applyData(window.__PRELOAD__); toast('已载入数据'); } catch(e){ if(window.console) console.warn('preload failed', e); }
+  }
 
   document.getElementById('addRowBtn').addEventListener('click', function(){
     var tr = addRow();
@@ -572,6 +625,25 @@ h2 .h2hint{font-weight:400;font-size:12.5px;color:var(--text-muted);margin-left:
   });
 
   document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+  document.getElementById('btnImport').addEventListener('click', function(){ document.getElementById('fileImport').click(); });
+
+  document.getElementById('fileImport').addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var data = JSON.parse(String(reader.result).replace(/^﻿/, ''));
+        applyData(data);
+        toast('已导入 ' + ((data['岗位'] || data['rows'] || []).length) + ' 个岗位的数据');
+      } catch(err){
+        alert('导入失败：无法解析该 JSON 文件。\n' + err.message);
+      }
+    };
+    reader.readAsText(f, 'utf-8');
+    e.target.value = '';
+  });
 
   document.getElementById('btnClear').addEventListener('click', function(){
     if(!confirm('确定清空所有已填内容并重新开始吗？')) return;
